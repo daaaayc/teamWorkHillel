@@ -13,6 +13,12 @@ let buttonSubmit = document.getElementById("payFine");
 
 //Ця зміна містить всі дані які в нас зберігаються у файлі data
 let DB = data.finesData;
+let regFineNumber = /\d/;
+let regPassport = /[А-Яа-яёЁЇїІіЄєҐґ]{2}\d{6}/;
+let regCreditCardNumber = /\d/;
+let regCVV = /\d/;
+
+
 
 
 /**
