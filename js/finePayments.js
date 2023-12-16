@@ -43,16 +43,24 @@ function payFine(){
     
 
     let validateArr = [];
-    let searchResult = searchFine(fineNumber.value,amount.value)
-    validateArr.push(searchResult);
+    let findFineNumber = searchFineNumber(fineNumber.value);
+    validateArr.push(findFineNumber);
+
     validateArr.push(validatePassport(passport.value),
                         validateCreditCardNumber(creditCardNumber.value), 
                         validateCVV(cvv.value));
+
+    let findAmount = searchAmount(amount.value,findFineNumber);
+
+    validateArr.push(findAmount);
+    console.log(findAmount.res);
     let intermediateError = unionAlert(validateArr);
 
 
-    if (searchResult.res == true && Boolean(intermediateError) != true){
-        validateArr.push(deleteFine(searchResult));
+    if (findFineNumber.res == true && findAmount.res == true && Boolean(intermediateError) != true){
+        console.log(findFineNumber.index);
+        console.log(findAmount.index);
+        validateArr.push(deleteFine(findFineNumber,findAmount));
         let error = unionAlert(validateArr);
         alert(error);
     }else{
@@ -135,16 +143,11 @@ function validateCVV(str){
      } 
 }
 
-function searchFine(fineNumber,amount){
-    if(fineNumber == "" && amount == ""){
-        return {res: false,
-                text: "Вы не ввели номер штрафа и сумму"};
-    }else if(fineNumber == ""){
+
+function searchFineNumber(fineNumber){
+    if(fineNumber == ""){
         return {res: false,
                 text: "Вы не ввели номер штрафа"};
-    }else if(amount == ""){
-        return {res: false,
-                text: "Вы не ввели сумму"};
     }
 
     let searchFineNumber =  DB.map(function(item){
@@ -155,6 +158,37 @@ function searchFine(fineNumber,amount){
         }
     });
 
+    let indexFineNumber;
+    for(let i in searchFineNumber){
+        if(searchFineNumber[i] == true){
+            indexFineNumber = i;
+        }
+    }
+
+    if (indexFineNumber === undefined){
+        return {res: false,
+                text: "Неправильный номер штрафа!"};
+    }
+
+    if(searchFineNumber[indexFineNumber] == true){
+        return {res: true,
+                text: "Ок",
+                index: indexFineNumber};
+    }
+
+
+    
+
+}
+
+
+function searchAmount(amount,obj){
+    if(amount == ""){
+        return {res: false,
+                text: "Вы не ввели сумму"};
+    }
+
+
     let searchAmount =  DB.map(function(item){
         if(item.сума == amount){
             return true; 
@@ -162,14 +196,14 @@ function searchFine(fineNumber,amount){
             return false;
         }
     });
-    
-    let indexFineNumber;
-    for(let i in searchAmount){
-        if(searchFineNumber[i] == true){
-            indexFineNumber = i;
+
+    if(obj.res == true){
+        if(searchAmount[obj.indexFineNumber] == true){
+            return {res: true,
+                    text: "Ок",
+                    index: indexAmount};
         }
     }
-
 
     let indexAmount;
     for(let i in searchAmount){
@@ -178,37 +212,32 @@ function searchFine(fineNumber,amount){
         }
     }
 
-    if(indexFineNumber === undefined && indexAmount === undefined){
-        return {res: false,
-                text: "Штраф не найден!"};
-    }else if (indexFineNumber === undefined){
-        return {res: false,
-                text: "Неправильный номер штрафа!"};
-    }else if(indexAmount === undefined){
+    if(indexAmount === undefined){
         return {res: false,
                 text: "Неправильная сумма!"};
     }
 
-    if(searchFineNumber[indexFineNumber] == true && searchAmount[indexFineNumber] == true){
+    if(searchAmount[indexAmount] == true){
         return {res: true,
                 text: "Ок",
-                index: indexFineNumber};
-    }else{
-        return {res: false,
-                text: "Неправильная сумма!"};
+                index: indexAmount};
     }
 
 }
-//
-function deleteFine(arr){
+
+
+function deleteFine(fineObj,amountObj){
+    console.log(fineObj.index);
+    console.log(amountObj.index);
+
      
-     if(arr.res == true){
-        DB.splice(arr.index,1);
+     if(fineObj.index == amountObj.index){
+        DB.splice(fineObj.indexFineNumber,1);
         return {res: false,
                 text: "Штраф удален!"};
      }else{
         return {res: false,
-                text: "Штраф не найден!"};
+                text: "Номер штраф или суммма не совпадают с существующим штрафом!"};
      } 
 
 }
