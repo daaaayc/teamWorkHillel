@@ -53,13 +53,12 @@ function payFine(){
     let findAmount = searchAmount(amount.value,findFineNumber);
 
     validateArr.push(findAmount);
-    console.log(findAmount.res);
+  
     let intermediateError = unionAlert(validateArr);
 
 
     if (findFineNumber.res == true && findAmount.res == true && Boolean(intermediateError) != true){
-        console.log(findFineNumber.index);
-        console.log(findAmount.index);
+ 
         validateArr.push(deleteFine(findFineNumber,findAmount));
         let error = unionAlert(validateArr);
         alert(error);
@@ -227,8 +226,7 @@ function searchAmount(amount,obj){
 
 
 function deleteFine(fineObj,amountObj){
-    console.log(fineObj.index);
-    console.log(amountObj.index);
+
 
      
      if(fineObj.index == amountObj.index){
